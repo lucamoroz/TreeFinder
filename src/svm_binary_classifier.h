@@ -19,7 +19,7 @@ public:
     Ptr<SVM> svm = SVM::create();
 
     void train(const Mat& training_data, const Mat& labels, SVM::KernelTypes kernel_type) {
-        for (int i = 0; i < labels.rows; ++i) {
+        for (int i = 0; i < labels.rows; i++) {
             int label = labels.at<int>(i,0);
 
             if ( !(label == 1 xor label == 0) )
@@ -29,13 +29,12 @@ public:
         Ptr<SVM> s = SVM::create();
         s->setType(SVM::C_SVC);
         s->setKernel(kernel_type);
-        // todo check svm.setGamma()
 
         TermCriteria tc(TermCriteria::MAX_ITER, 100, 1e-6);
         s->setTermCriteria(tc);
 
-        // todo check trainauto with paramgrid & kfold
-        s->train(training_data, ROW_SAMPLE, labels);
+        Ptr<TrainData> train_data = TrainData::create(training_data, ROW_SAMPLE, labels);
+        s->trainAuto(train_data);
 
         if (!s->isTrained())
             throw runtime_error("SvmBinaryClassifier - Error training SVM");
@@ -43,15 +42,15 @@ public:
         this->svm = s;
     }
 
-    int getClass(const Mat& input) {
+    int getClass(const Mat& input, float &out_confidence) {
         if (svm.empty() || !svm->isTrained()) {
             throw logic_error("SvmBinaryClassifier - cannot predict class: emtpy SVM");
         }
 
-        float decision = svm->predict(input, noArray(), StatModel::Flags::RAW_OUTPUT);
-        float conf = 1.0 / (1.0 + exp(-decision));
+        float distance = svm->predict(input, noArray(), StatModel::Flags::RAW_OUTPUT);
 
-        cout << "conf: " << conf << endl;
+        float conf = 1.0 / (1.0 + exp(-distance));
+        out_confidence = conf;
 
         return this->svm->predict(input);
     }

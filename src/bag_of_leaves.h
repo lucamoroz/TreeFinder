@@ -19,6 +19,8 @@ class BagOfLeaves {
 public:
 
     Mat dictionary = Mat();
+    Ptr<FeatureDetector> feature_detector = SiftFeatureDetector::create();
+    Ptr<DescriptorExtractor> descriptor_extractor = SiftDescriptorExtractor::create();
 
     void train(vector<Mat> train_images, int dictionary_size) {
         Mat unclustered_features = extractFeatures(train_images);
@@ -26,33 +28,45 @@ public:
         // Compute codewords
         TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,100,0.001);
         BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
-        Mat dictionary = bow_trainer.cluster(unclustered_features);
 
-        if (dictionary.empty())
+        Mat dict = bow_trainer.cluster(unclustered_features);
+
+        if (dict.empty())
             throw runtime_error("BagOfLeaves - error learning dictionary");
 
-        this->dictionary = dictionary;
+        this->dictionary = dict;
     }
 
-    Mat computeBowDescriptor(const Mat& img) {
+    BOWImgDescriptorExtractor getBowExtractor() {
         if (dictionary.empty())
-            throw logic_error("BagOfLeaves - error computing descriptor: empty dictionary");
+            throw logic_error("BagOfLeaves - error creating bow extractor: empty dictionary");
 
-        // todo move this such that is done once - or try to uniform feature extraction and descr computation
         // Fast Library Approximate Nearest Neighbor matcher - todo check other matchers
         Ptr<DescriptorMatcher> matcher(new FlannBasedMatcher);
-        Ptr<FeatureDetector> detector(SIFT::create());
-        Ptr<DescriptorExtractor> extractor(SIFT::create());
 
-        BOWImgDescriptorExtractor bow_extractor(extractor, matcher);
+        BOWImgDescriptorExtractor bow_extractor(matcher);
         bow_extractor.setVocabulary(this->dictionary);
 
+        return bow_extractor;
+    }
+
+    Mat computeBowDescriptorFromImage(const Mat& img) {
+        BOWImgDescriptorExtractor bow_extractor = getBowExtractor();
         vector<KeyPoint> keypoints;
+        Mat descriptors;
         Mat bow_desc;
 
-        detector->detect(img, keypoints);
-        // Delegate to BoW descriptors computation, codewords matching and final bow desc. calculation
-        bow_extractor.compute(img, keypoints, bow_desc);
+        feature_detector->detect(img, keypoints);
+        descriptor_extractor->compute(img, keypoints, descriptors);
+
+        return computeBowDescriptor(descriptors);
+    }
+
+    Mat computeBowDescriptor(const Mat& descriptors) {
+        Mat bow_desc;
+
+        BOWImgDescriptorExtractor bow_extractor = getBowExtractor();
+        bow_extractor.compute(descriptors, bow_desc);
 
         return bow_desc;
     }
@@ -88,22 +102,27 @@ public:
 
 private:
 
-    static Mat extractFeatures(const vector<Mat>& images) {
-        // todo change for just one image
-        Ptr<SIFT> extractor = SIFT::create();
+    Mat extractFeatures(const vector<Mat>& images) {
         Mat all_features;
 
         for (const auto& img : images) {
-            vector<KeyPoint> keypoints;
-            Mat descriptor;
-
-            extractor->detect(img, keypoints);
-            extractor->compute(img, keypoints, descriptor);
-
-            all_features.push_back(descriptor);
+            Mat descriptor = extractFeatures(img);
+            if (!descriptor.empty()) {
+                all_features.push_back(descriptor);
+            }
         }
 
         return all_features;
+    }
+
+    Mat extractFeatures(const Mat& img) {
+        Mat descriptor;
+        vector<KeyPoint> keypoints;
+
+        feature_detector->detect(img, keypoints);
+        descriptor_extractor->compute(img, keypoints, descriptor);
+
+        return descriptor;
     }
 
     static bool fileExist(const char* filename) {
