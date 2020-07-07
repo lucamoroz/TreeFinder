@@ -69,27 +69,15 @@ public:
     }
 
     vector<Rect2i> locateTrees(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
-
         vector<Rect2i> tree_locations;
+
         vector<KeyPoint> all_keypoints;
-        Mat all_descriptors;
+        Mat all_descriptors = bag_of_leaves.extractFeatureDescriptors(img, all_keypoints);
 
-        // Store keypoints for faster subwindow processing
+        for (auto &win_size : getWindowsSizes(img)) {
 
-        bag_of_leaves.feature_detector->detect(img, all_keypoints);
-        bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
-
-        for (int i = 0; i < 4; i++) {
-            // define window size
-
-            int win_cols = (1- (float)i/4) * img.cols;
-            // int win_rows = (1- (float)i/4) * img.rows;
-            int win_rows = (win_cols * 4)/3;
-            if (win_rows > img.rows)
-                win_rows = img.rows;
-
-            int col_step = win_cols / 15;
-            int row_step = win_rows / 15;
+            int col_step = win_size.width / 15;
+            int row_step = win_size.height / 15;
 
             if (col_step == 0)
                 col_step = 1;
@@ -99,8 +87,9 @@ public:
             /*
             // Show rectangles size
             Mat tmp = img.clone();
-            Rect2i ROI(0, 0, win_cols, win_rows);
-            rectangle(tmp, ROI, Scalar(255,0,0));
+            Rect2i ROI(Point2i(0,0), win_size);
+            rectangle(tmp, ROI, Scalar(255,0,0), 3);
+            namedWindow("a", WINDOW_NORMAL);
             imshow("a", tmp);
             waitKey(0);
             destroyAllWindows();
@@ -109,20 +98,22 @@ public:
             vector<Rect2i> boxes;
             vector<float> confidences;
 
-            for (int row = 0; row + win_rows <= img.rows; row += row_step) {
-                for (int col = 0; col + win_cols <= img.cols; col += col_step) {
-                    Rect2i ROI(col, row, win_cols, win_rows);
+            for (int row = 0; row + win_size.height <= img.rows; row += row_step) {
+                for (int col = 0; col + win_size.width <= img.cols; col += col_step) {
+                    Rect2i ROI(Point2i(col, row), win_size);
+
+                    Mat ROI_descriptors = getDescriptorsInsideROI(ROI, all_keypoints, all_descriptors);
 
                     /*
                     // Show moving window
+                    cout << "Features in ROI: " << ROI_descriptors.rows << endl;
                     Mat tmp = img.clone();
-                    rectangle(tmp, ROI, Scalar(255,0,0));
-                    imshow("a", tmp);
+                    rectangle(tmp, ROI, Scalar(255,0,0), 3);
+                    namedWindow("test", WINDOW_NORMAL);
+                    imshow("test", tmp);
                     waitKey(0);
                     destroyAllWindows();
                     */
-
-                    Mat ROI_descriptors = getDescriptorsInsideROI(ROI, all_keypoints, all_descriptors);
 
                     if (ROI_descriptors.empty())
                         continue;
@@ -219,6 +210,37 @@ public:
     }
 
 private:
+
+    vector<Size2i> getWindowsSizes(const Mat& img) {
+        vector<Size2i> sizes;
+
+        int win1_cols = (int) (0.25 * (float) img.cols);
+        int win1_rows = (win1_cols * 4)/3;
+        if (win1_rows > img.rows)
+            win1_rows = img.rows;
+
+        int win2_cols = (int) (0.4 * (float) img.cols);
+        int win2_rows = (win2_cols * 4)/3;
+        if (win2_rows > img.rows)
+            win2_rows = img.rows;
+
+        int win3_cols = (int) (0.6 * (float) img.cols);
+        int win3_rows = (win3_cols * 4)/3;
+        if (win3_rows > img.rows)
+            win3_rows = img.rows;
+
+        int win4_cols = (int) (0.8 * (float) img.cols);
+        int win4_rows = (win4_cols * 4)/3;
+        if (win4_rows > img.rows)
+            win4_rows = img.rows;
+
+        sizes.push_back(Size(win4_cols, win4_rows));
+        sizes.push_back(Size(win3_cols, win3_rows));
+        sizes.push_back(Size(win2_cols, win2_rows));
+        sizes.push_back(Size(win1_cols, win1_rows));
+
+        return sizes;
+    }
 
     static vector<Rect2i> removeFullyOverlapping(vector<Rect2i> rects) {
         vector<Rect2i> filtered;

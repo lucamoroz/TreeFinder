@@ -14,6 +14,7 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 
 const string DICT_PATH = "../data/dictionary.yml";
+const Size PREPROCESS_SIZE(240, 180);
 
 class BagOfLeaves {
 
@@ -102,8 +103,8 @@ public:
 
         Mat prep = preprocessImg(img);
 
-        this->feature_detector->detect(img, keypoints);
-        this->descriptor_extractor->compute(img, keypoints, descriptor);
+        this->feature_detector->detect(prep, keypoints);
+        this->descriptor_extractor->compute(prep, keypoints, descriptor);
 
         return descriptor;
     }
@@ -114,7 +115,10 @@ public:
     }
 
     static Mat preprocessImg(const Mat &img) {
-        return img;
+        Mat res;
+        // Resize using default bilinear interpolation
+        resize(img, res, PREPROCESS_SIZE);
+        return res;
     }
 
 private:
