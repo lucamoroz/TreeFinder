@@ -8,7 +8,7 @@
 using namespace std;
 using namespace cv;
 
-const int DEFAULT_DICT_SIZE = 120;
+const int DEFAULT_DICT_SIZE = 110;
 const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
 const float DEFAULT_MIN_CONF = 0.48;
 
@@ -68,11 +68,84 @@ public:
         return containsTree;
     }
 
+    vector<Rect2i> locateTrees2(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
+        vector<Rect2i> tree_locations;
+
+        // Sliding window using 4 window sizes (proportional to the input image)
+        for (const auto& win_size : getWindowsSizes(img)) {
+
+            int col_step = win_size.width / 10;
+            int row_step = win_size.height / 10;
+
+            if (col_step == 0)
+                col_step = 1;
+            if (row_step == 0)
+                row_step = 1;
+
+            /*
+            // Show rectangles size
+            Mat tmp = img.clone();
+            Rect2i ROI(0, 0, win_cols, win_rows);
+            rectangle(tmp, ROI, Scalar(255,0,0));
+            imshow("a", tmp);
+            waitKey(0);
+            destroyAllWindows();
+            */
+
+            vector<Rect2i> boxes;
+            vector<float> confidences;
+
+            for (int row = 0; row + win_size.height <= img.rows; row += row_step) {
+                for (int col = 0; col + win_size.width <= img.cols; col += col_step) {
+                    Rect2i ROI(Point2i(col, row), win_size);
+
+                    Mat window = img(ROI);
+                    Mat bow_desc = bag_of_leaves.computeBowDescriptorFromImage(window);
+
+                    /*
+                    // Show moving window
+                    cout << "Features in ROI: " << bag_of_leaves.extractFeatureDescriptors(window).rows << endl;
+                    Mat tmp = img.clone();
+                    rectangle(tmp, ROI, Scalar(255,0,0), 3);
+                    namedWindow("test", WINDOW_NORMAL);
+                    imshow("test", tmp);
+                    waitKey(0);
+                    destroyAllWindows();
+                    */
+
+                    if (bow_desc.empty())
+                        continue;
+
+                    float confidence;
+                    int predicted = svm_binary_classifier.getClass(bow_desc, confidence);
+
+                    if (predicted == 1) {
+                        boxes.push_back(ROI);
+                        confidences.push_back(confidence);
+                    }
+                }
+            }
+
+            // Apply non-maxima suppression
+            vector<int> maxima_indexes;
+            dnn::NMSBoxes(boxes, confidences, min_conf, 0, maxima_indexes);
+            for (int mi : maxima_indexes) {
+                tree_locations.push_back(boxes[mi]);
+            }
+        }
+
+        return removeFullyOverlapping(tree_locations);
+
+    }
+
     vector<Rect2i> locateTrees(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
         vector<Rect2i> tree_locations;
 
         vector<KeyPoint> all_keypoints;
-        Mat all_descriptors = bag_of_leaves.extractFeatureDescriptors(img, all_keypoints);
+        Mat all_descriptors;
+
+        bag_of_leaves.feature_detector->detect(img, all_keypoints);
+        bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
 
         for (auto &win_size : getWindowsSizes(img)) {
 

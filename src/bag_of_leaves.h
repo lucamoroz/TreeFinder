@@ -14,7 +14,7 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 
 const string DICT_PATH = "../data/dictionary.yml";
-const Size PREPROCESS_SIZE(240, 180);
+const Size PREPROCESS_SIZE(300, 400);
 
 class BagOfLeaves {
 
@@ -29,8 +29,8 @@ public:
         Mat unclustered_features = extractFeatures(images_path);
 
         // Compute codewords
-        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,150,0.001);
-        BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
+        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,100,0.001);
+        BOWKMeansTrainer bow_trainer(dictionary_size, tc, 2, KMEANS_PP_CENTERS);
 
         cout << "BagOfLeaves - extracting codewords..." << endl;
         Mat dict = bow_trainer.cluster(unclustered_features);
@@ -62,6 +62,9 @@ public:
     // Extract codewords from feature descriptors
     Mat computeBowDescriptor(const Mat& feature_descriptors) {
         Mat bow_desc;
+
+        if (feature_descriptors.empty())
+            return bow_desc;
 
         BOWImgDescriptorExtractor bow_extractor = getBowExtractor();
         bow_extractor.compute(feature_descriptors, bow_desc);
