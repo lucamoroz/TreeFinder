@@ -102,8 +102,8 @@ public:
 
         Mat prep = preprocessImg(img);
 
-        this->feature_detector->detect(img, keypoints);
-        this->descriptor_extractor->compute(img, keypoints, descriptor);
+        this->feature_detector->detect(prep, keypoints);
+        this->descriptor_extractor->compute(prep, keypoints, descriptor);
 
         return descriptor;
     }
