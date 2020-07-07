@@ -5,6 +5,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <fstream>
 
@@ -53,22 +54,16 @@ public:
     }
 
     Mat computeBowDescriptorFromImage(const Mat& img) {
-        BOWImgDescriptorExtractor bow_extractor = getBowExtractor();
-        vector<KeyPoint> keypoints;
-        Mat descriptors;
-        Mat bow_desc;
-
-        feature_detector->detect(img, keypoints);
-        descriptor_extractor->compute(img, keypoints, descriptors);
-
+        Mat descriptors = extractFeatureDescriptors(img);
         return computeBowDescriptor(descriptors);
     }
 
-    Mat computeBowDescriptor(const Mat& descriptors) {
+    // Extract codewords from feature descriptors
+    Mat computeBowDescriptor(const Mat& feature_descriptors) {
         Mat bow_desc;
 
         BOWImgDescriptorExtractor bow_extractor = getBowExtractor();
-        bow_extractor.compute(descriptors, bow_desc);
+        bow_extractor.compute(feature_descriptors, bow_desc);
 
         return bow_desc;
     }
@@ -102,14 +97,24 @@ public:
         return !dictionary.empty();
     }
 
-    Mat extractFeatures(const Mat& img) {
+    Mat extractFeatureDescriptors(const Mat& img, vector<KeyPoint> &keypoints) {
         Mat descriptor;
-        vector<KeyPoint> keypoints;
+
+        Mat prep = preprocessImg(img);
 
         this->feature_detector->detect(img, keypoints);
         this->descriptor_extractor->compute(img, keypoints, descriptor);
 
         return descriptor;
+    }
+
+    Mat extractFeatureDescriptors(const Mat& img) {
+        vector<KeyPoint> unused;
+        return extractFeatureDescriptors(img, unused);
+    }
+
+    static Mat preprocessImg(const Mat &img) {
+        return img;
     }
 
 private:
@@ -121,7 +126,7 @@ private:
 
         for (const auto& path : images_path) {
             img = imread(path);
-            descriptor = extractFeatures(img);
+            descriptor = extractFeatureDescriptors(img);
             if (!descriptor.empty()) {
                 all_features.push_back(descriptor);
             }

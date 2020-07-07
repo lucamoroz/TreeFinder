@@ -10,7 +10,7 @@ using namespace cv;
 
 const int DEFAULT_DICT_SIZE = 120;
 const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
-const float DEFAULT_MIN_CONF = 0.43;
+const float DEFAULT_MIN_CONF = 0.48;
 
 const string TRAINING_PATH = "../data/images/training";
 
@@ -74,9 +74,10 @@ public:
         vector<KeyPoint> all_keypoints;
         Mat all_descriptors;
 
+        // Store keypoints for faster subwindow processing
+
         bag_of_leaves.feature_detector->detect(img, all_keypoints);
         bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
-
 
         for (int i = 0; i < 4; i++) {
             // define window size
