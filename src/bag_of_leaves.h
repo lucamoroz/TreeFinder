@@ -22,12 +22,12 @@ public:
     Ptr<FeatureDetector> feature_detector = SiftFeatureDetector::create();
     Ptr<DescriptorExtractor> descriptor_extractor = SiftDescriptorExtractor::create();
 
-    void train(const vector<Mat> &train_images, int dictionary_size) {
+    void train(const vector<string> &images_path, int dictionary_size) {
         cout << "BagOfLeaves - extracting features..." << endl;
-        Mat unclustered_features = extractFeatures(train_images);
+        Mat unclustered_features = extractFeatures(images_path);
 
         // Compute codewords
-        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,200,0.001);
+        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,150,0.001);
         BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
 
         cout << "BagOfLeaves - extracting codewords..." << endl;
@@ -102,29 +102,34 @@ public:
         return !dictionary.empty();
     }
 
-private:
-
-    Mat extractFeatures(const vector<Mat>& images) {
-        Mat all_features;
-        Mat descriptor;
-        for (const auto& img : images) {
-            descriptor = extractFeatures(img);
-            if (!descriptor.empty()) {
-                all_features.push_back(descriptor);
-            }
-        }
-
-        return all_features;
-    }
-
     Mat extractFeatures(const Mat& img) {
         Mat descriptor;
         vector<KeyPoint> keypoints;
 
-        feature_detector->detect(img, keypoints);
-        descriptor_extractor->compute(img, keypoints, descriptor);
+        this->feature_detector->detect(img, keypoints);
+        this->descriptor_extractor->compute(img, keypoints, descriptor);
 
         return descriptor;
+    }
+
+private:
+
+    Mat extractFeatures(const vector<string> images_path) {
+        Mat all_features;
+        Mat descriptor;
+        Mat img;
+
+        for (const auto& path : images_path) {
+            img = imread(path);
+            descriptor = extractFeatures(img);
+            if (!descriptor.empty()) {
+                all_features.push_back(descriptor);
+            }
+
+            img.release();
+        }
+
+        return all_features;
     }
 
     static bool fileExist(const char* filename) {

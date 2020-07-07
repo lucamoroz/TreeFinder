@@ -8,7 +8,7 @@
 using namespace std;
 using namespace cv;
 
-const int DEFAULT_DICT_SIZE = 170;
+const int DEFAULT_DICT_SIZE = 120;
 const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
 const float DEFAULT_MIN_CONF = 0.43;
 
@@ -32,18 +32,17 @@ public:
 
         glob(TRAINING_PATH + "/*.*",images_path);
 
-        for (const auto& p : images_path) {
-            train_images.push_back(imread(p));
-        }
-
         cout << "Training BOVW..." << endl;
-        new_bag_of_leaves.train(train_images, dict_size);
+        new_bag_of_leaves.train(images_path, dict_size);
 
         // parse labels - pattern: IMG_ID-LABEL.*
         int n_class_one = 0;
         for (const auto& path : images_path) {
             Mat desc = new_bag_of_leaves.computeBowDescriptorFromImage(imread(path));
             int label = atoi(path.substr(path.find('-') + 1, 1).c_str());
+
+            if (desc.empty())
+                continue;
 
             if (label == 1)
                 n_class_one++;
