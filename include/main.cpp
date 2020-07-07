@@ -4,7 +4,7 @@
 using namespace std;
 
 
-int main() {
+int main(int argc, char* argv[]) {
     TreeFinder treeFinder = TreeFinder::loadTreeFinder();
 
     if (!treeFinder.isTrained()) {
@@ -15,36 +15,30 @@ int main() {
         cout << "Success loading TreeFinder" << endl;
     }
 
-    //cout << "Accuracy: " << treeFinder.measureAccuracy(TRAINING_PATH) << endl;
-
-    // cout << "Tree: " << treeFinder.containsTree(imread("../data/images/10-0.jpg")) << endl;
-
-    vector<string> images_path;
-    glob("../data/images/test/*.*", images_path);
-    vector<Mat> result;
-
-    for (int i = 0; i < images_path.size(); i++) {
-        string path = images_path[i];
-
-        Mat img = imread(path);
-        vector<float> confidences;
-        vector<Rect2i> locations = treeFinder.locateTrees(img);
-
-        cout << "Locations found: " << result.size() << endl;
-
-        for (int j = 0; j < locations.size(); j++) {
-            rectangle(img, locations[j], Scalar(250,255,0), 3);
-        }
-
-        result.push_back(img);
+    if (argc < 2 || argc > 3) {
+        cout << "USAGE: ./TreeFinder IMG_PATH [OPT - MIN_CONF]" << endl;
+        return 1;
     }
 
-    for (auto img : result) {
-        namedWindow("Res", WINDOW_NORMAL);
-        imshow("Res", img);
-        waitKey(0);
+    string img_path = argv[1];
+
+    float min_conf = DEFAULT_MIN_CONF;
+    if (argc == 3)
+        min_conf = stof(argv[2]);
+
+    Mat img = imread(img_path);
+    // GaussianBlur(img, img, Size(3,3), 0.4, 0.4);
+
+    vector<Rect2i> locations = treeFinder.locateTrees(img, min_conf);
+
+    // Draw found locations
+    for (int j = 0; j < locations.size(); j++) {
+        rectangle(img, locations[j], Scalar(250,255,0), 3);
     }
 
+    namedWindow("Result", WINDOW_NORMAL);
+    imshow("Result", img);
+    waitKey(0);
 
     destroyAllWindows();
 

@@ -22,13 +22,15 @@ public:
     Ptr<FeatureDetector> feature_detector = SiftFeatureDetector::create();
     Ptr<DescriptorExtractor> descriptor_extractor = SiftDescriptorExtractor::create();
 
-    void train(vector<Mat> train_images, int dictionary_size) {
+    void train(const vector<Mat> &train_images, int dictionary_size) {
+        cout << "BagOfLeaves - extracting features..." << endl;
         Mat unclustered_features = extractFeatures(train_images);
 
         // Compute codewords
-        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,100,0.001);
+        TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,200,0.001);
         BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
 
+        cout << "BagOfLeaves - extracting codewords..." << endl;
         Mat dict = bow_trainer.cluster(unclustered_features);
 
         if (dict.empty())
@@ -41,7 +43,7 @@ public:
         if (dictionary.empty())
             throw logic_error("BagOfLeaves - error creating bow extractor: empty dictionary");
 
-        // Fast Library Approximate Nearest Neighbor matcher - todo check other matchers
+        // Fast Library Approximate Nearest Neighbor matcher
         Ptr<DescriptorMatcher> matcher(new FlannBasedMatcher);
 
         BOWImgDescriptorExtractor bow_extractor(matcher);
@@ -77,12 +79,12 @@ public:
         fs.release();
     }
 
-    // Returns empty bag of leaves if not found
+    // Returns empty BagOfLeaves if not found
     static BagOfLeaves loadBagOfLeaves() {
         BagOfLeaves bow;
 
         if (!fileExist(DICT_PATH.c_str())) {
-            cout << "Bag of leaves - cannot load dictionary: dictionary not found." << endl;
+            cout << "BagOfLeaves - cannot load dictionary: dictionary not found." << endl;
             return bow;
         }
 
@@ -104,9 +106,9 @@ private:
 
     Mat extractFeatures(const vector<Mat>& images) {
         Mat all_features;
-
+        Mat descriptor;
         for (const auto& img : images) {
-            Mat descriptor = extractFeatures(img);
+            descriptor = extractFeatures(img);
             if (!descriptor.empty()) {
                 all_features.push_back(descriptor);
             }

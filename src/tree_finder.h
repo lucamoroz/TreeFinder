@@ -8,12 +8,9 @@
 using namespace std;
 using namespace cv;
 
-const int DEFAULT_DICT_SIZE = 64;
+const int DEFAULT_DICT_SIZE = 170;
 const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
-const float DEFAULT_MIN_CONF = 0.4;
-
-Size GAUSSIAN_BLUR_SIZE(3,3);
-float GAUSSIAN_SIGMA = 0.5;
+const float DEFAULT_MIN_CONF = 0.43;
 
 const string TRAINING_PATH = "../data/images/training";
 
@@ -36,8 +33,7 @@ public:
         glob(TRAINING_PATH + "/*.*",images_path);
 
         for (const auto& p : images_path) {
-            Mat prep = preprocessImg(imread(p));
-            train_images.push_back(prep);
+            train_images.push_back(imread(p));
         }
 
         cout << "Training BOVW..." << endl;
@@ -73,8 +69,7 @@ public:
         return containsTree;
     }
 
-    vector<Rect2i> locateTrees(Mat& input, float min_conf = DEFAULT_MIN_CONF) {
-        Mat img = preprocessImg(input);
+    vector<Rect2i> locateTrees(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
 
         vector<Rect2i> tree_locations;
         vector<KeyPoint> all_keypoints;
@@ -149,7 +144,6 @@ public:
             for (int mi : maxima_indexes) {
                 tree_locations.push_back(boxes[mi]);
             }
-
         }
 
         /*
@@ -158,7 +152,7 @@ public:
         waitKey(0);
         */
 
-        return removeFullyOverlapping(tree_locations);
+        return tree_locations;
     }
 
     static Mat getDescriptorsInsideROI(Rect2i ROI, const vector<KeyPoint>& all_keypoints, const Mat& all_descriptors) {
@@ -170,12 +164,6 @@ public:
         }
 
         return result;
-    }
-
-    static Mat preprocessImg(Mat img) {
-        Mat res;
-        GaussianBlur(img, res, GAUSSIAN_BLUR_SIZE, GAUSSIAN_SIGMA, GAUSSIAN_SIGMA);
-        return res;
     }
 
     static TreeFinder loadTreeFinder() {
