@@ -14,7 +14,7 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 
 const string DICT_PATH = "../data/dictionary.yml";
-const Size PREPROCESS_SIZE(300, 400);
+const Size PREPROCESS_SIZE(1920, 960);
 
 class BagOfLeaves {
 
@@ -30,7 +30,7 @@ public:
 
         // Compute codewords
         TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,100,0.001);
-        BOWKMeansTrainer bow_trainer(dictionary_size, tc, 2, KMEANS_PP_CENTERS);
+        BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
 
         cout << "BagOfLeaves - extracting codewords..." << endl;
         Mat dict = bow_trainer.cluster(unclustered_features);

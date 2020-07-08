@@ -8,7 +8,7 @@
 using namespace std;
 using namespace cv;
 
-const int DEFAULT_DICT_SIZE = 110;
+const int DEFAULT_DICT_SIZE = 200;
 const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
 const float DEFAULT_MIN_CONF = 0.48;
 
@@ -142,7 +142,7 @@ public:
         vector<Rect2i> tree_locations;
 
         vector<KeyPoint> all_keypoints;
-        Mat all_descriptors;
+        Mat all_descriptors; // = bag_of_leaves.extractFeatureDescriptors(img, all_keypoints);
 
         bag_of_leaves.feature_detector->detect(img, all_keypoints);
         bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
@@ -216,7 +216,7 @@ public:
         waitKey(0);
         */
 
-        return tree_locations;
+        return removeFullyOverlapping(tree_locations);
     }
 
     static Mat getDescriptorsInsideROI(Rect2i ROI, const vector<KeyPoint>& all_keypoints, const Mat& all_descriptors) {

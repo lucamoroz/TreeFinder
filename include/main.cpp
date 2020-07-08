@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     Mat img = imread(img_path);
     // GaussianBlur(img, img, Size(3,3), 0.4, 0.4);
 
-    vector<Rect2i> locations = treeFinder.locateTrees2(img, min_conf);
+    vector<Rect2i> locations = treeFinder.locateTrees(img, min_conf);
 
     // Draw found locations
     for (int j = 0; j < locations.size(); j++) {
