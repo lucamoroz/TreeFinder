@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 int main(int argc, char* argv[]) {
     TreeFinder treeFinder = TreeFinder::loadTreeFinder();
 
@@ -16,7 +15,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (argc < 2 || argc > 3) {
-        cout << "USAGE: ./TreeFinder IMG_PATH [OPT - MIN_CONF]" << endl;
+        cout << "USAGE: ./TreeFinder IMG_PATH [OPTIONAL MIN_CONF]" << endl;
         return 1;
     }
 
@@ -27,7 +26,6 @@ int main(int argc, char* argv[]) {
         min_conf = stof(argv[2]);
 
     Mat img = imread(img_path);
-    // GaussianBlur(img, img, Size(3,3), 0.4, 0.4);
 
     vector<Rect2i> locations = treeFinder.locateTrees(img, min_conf);
 
