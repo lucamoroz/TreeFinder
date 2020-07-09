@@ -9,7 +9,6 @@ using namespace std;
 using namespace cv;
 
 const int DEFAULT_DICT_SIZE = 200;
-const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
 const float DEFAULT_MIN_CONF = 0.48;
 
 const string TRAINING_PATH = "../data/images/training";
@@ -21,7 +20,7 @@ class TreeFinder {
 
 public:
 
-    void train(int dict_size = DEFAULT_DICT_SIZE, SVM::KernelTypes kernel_type = DEFAULT_SVM_KERNEL) {
+    void train(int dict_size = DEFAULT_DICT_SIZE) {
         BagOfLeaves new_bag_of_leaves = BagOfLeaves();
         SvmBinaryClassifier new_svm_binary_classifier = SvmBinaryClassifier();
 
@@ -52,7 +51,7 @@ public:
         }
 
         cout << "Training SVM - class one samples: " << n_class_one << "\t class zero samples: " << to_string(images_path.size() - n_class_one) << endl;
-        new_svm_binary_classifier.train(train_descriptors, labels, kernel_type);
+        new_svm_binary_classifier.train(train_descriptors, labels);
 
         // No errors at this point: set bow and classifier
         this->bag_of_leaves = new_bag_of_leaves;

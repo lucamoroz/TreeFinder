@@ -11,14 +11,20 @@ using namespace cv;
 using namespace cv::ml;
 
 const char* SVM_PATH = "../data/svm_classifier.yml";
+const SVM::KernelTypes DEFAULT_SVM_KERNEL = ml::SVM::RBF;
 
 class SvmBinaryClassifier {
-
 public:
 
     Ptr<SVM> svm = SVM::create();
 
-    void train(const Mat& training_data, const Mat& labels, SVM::KernelTypes kernel_type) {
+    /***
+     *
+     * @param training_data
+     * @param labels
+     * @param kernel_type
+     */
+    void train(const Mat& training_data, const Mat& labels) {
         for (int i = 0; i < labels.rows; i++) {
             int label = labels.at<int>(i,0);
 
@@ -28,7 +34,7 @@ public:
 
         Ptr<SVM> s = SVM::create();
         s->setType(SVM::C_SVC);
-        s->setKernel(kernel_type);
+        s->setKernel(DEFAULT_SVM_KERNEL);
 
         TermCriteria tc(TermCriteria::MAX_ITER, 100, 1e-6);
         s->setTermCriteria(tc);
