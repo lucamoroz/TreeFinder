@@ -20,7 +20,14 @@ class TreeFinder {
 
 public:
 
-    void train(int dict_size = DEFAULT_DICT_SIZE) {
+    /***
+     * Train BagOfLeaves and SvmBinaryClassifier.
+     * The training folder must contain images named with the pattern "name-class.*", where class is 1 if tree,
+     * 0 otherwise.
+     * @param dict_size optional vocabulary size.
+     * @param training_path optional training folder path.
+     */
+    void train(int dict_size = DEFAULT_DICT_SIZE, string training_path = TRAINING_PATH) {
         BagOfLeaves new_bag_of_leaves = BagOfLeaves();
         SvmBinaryClassifier new_svm_binary_classifier = SvmBinaryClassifier();
 
@@ -29,7 +36,7 @@ public:
         Mat train_descriptors;
         Mat labels;
 
-        glob(TRAINING_PATH + "/*.*",images_path);
+        glob(training_path + "/*.*",images_path);
 
         cout << "Training BOVW..." << endl;
         new_bag_of_leaves.train(images_path, dict_size);
@@ -58,85 +65,13 @@ public:
         this->svm_binary_classifier = new_svm_binary_classifier;
     }
 
-    bool containsTree(Mat img) {
-
-        Mat desc = bag_of_leaves.computeBowDescriptorFromImage(img);
-        float conf = 0;
-        bool containsTree = svm_binary_classifier.getClass(desc, conf) > 0;
-
-        return containsTree;
-    }
-
-    vector<Rect2i> locateTrees2(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
-        vector<Rect2i> tree_locations;
-
-        // Sliding window using 4 window sizes (proportional to the input image)
-        for (const auto& win_size : getWindowsSizes(img)) {
-
-            int col_step = win_size.width / 10;
-            int row_step = win_size.height / 10;
-
-            if (col_step == 0)
-                col_step = 1;
-            if (row_step == 0)
-                row_step = 1;
-
-            /*
-            // Show rectangles size
-            Mat tmp = img.clone();
-            Rect2i ROI(0, 0, win_cols, win_rows);
-            rectangle(tmp, ROI, Scalar(255,0,0));
-            imshow("a", tmp);
-            waitKey(0);
-            destroyAllWindows();
-            */
-
-            vector<Rect2i> boxes;
-            vector<float> confidences;
-
-            for (int row = 0; row + win_size.height <= img.rows; row += row_step) {
-                for (int col = 0; col + win_size.width <= img.cols; col += col_step) {
-                    Rect2i ROI(Point2i(col, row), win_size);
-
-                    Mat window = img(ROI);
-                    Mat bow_desc = bag_of_leaves.computeBowDescriptorFromImage(window);
-
-                    /*
-                    // Show moving window
-                    cout << "Features in ROI: " << bag_of_leaves.extractFeatureDescriptors(window).rows << endl;
-                    Mat tmp = img.clone();
-                    rectangle(tmp, ROI, Scalar(255,0,0), 3);
-                    namedWindow("test", WINDOW_NORMAL);
-                    imshow("test", tmp);
-                    waitKey(0);
-                    destroyAllWindows();
-                    */
-
-                    if (bow_desc.empty())
-                        continue;
-
-                    float confidence;
-                    int predicted = svm_binary_classifier.getClass(bow_desc, confidence);
-
-                    if (predicted == 1) {
-                        boxes.push_back(ROI);
-                        confidences.push_back(confidence);
-                    }
-                }
-            }
-
-            // Apply non-maxima suppression
-            vector<int> maxima_indexes;
-            dnn::NMSBoxes(boxes, confidences, min_conf, 0, maxima_indexes);
-            for (int mi : maxima_indexes) {
-                tree_locations.push_back(boxes[mi]);
-            }
-        }
-
-        return removeFullyOverlapping(tree_locations);
-
-    }
-
+    /***
+     * Locate trees with the sliding window technique, applies non-maxima suppression using the normalized distance of
+     * a prediction from the margin and removes fully overlapping rectangles.
+     * @param img
+     * @param min_conf minimum confidence above which a rectangle is discarded.
+     * @return a list of rectangles wrapping any found tree.
+     */
     vector<Rect2i> locateTrees(Mat& img, float min_conf = DEFAULT_MIN_CONF) {
         vector<Rect2i> tree_locations;
 
@@ -146,7 +81,7 @@ public:
         bag_of_leaves.feature_detector->detect(img, all_keypoints);
         bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
 
-        for (auto &win_size : getWindowsSizes(img)) {
+        for (const auto &win_size : getWindowsSizes(img)) {
 
             int col_step = win_size.width / 15;
             int row_step = win_size.height / 15;
@@ -177,7 +112,7 @@ public:
                     Mat ROI_descriptors = getDescriptorsInsideROI(ROI, all_keypoints, all_descriptors);
 
                     /*
-                    // Show moving window
+                    // Show step-by-step moving window and number of features inside it
                     cout << "Features in ROI: " << ROI_descriptors.rows << endl;
                     Mat tmp = img.clone();
                     rectangle(tmp, ROI, Scalar(255,0,0), 3);
@@ -209,39 +144,15 @@ public:
             }
         }
 
-        /*
-        namedWindow("aaa");
-        imshow("aaa", img);
-        waitKey(0);
-        */
-
         return removeFullyOverlapping(tree_locations);
     }
 
-    static Mat getDescriptorsInsideROI(Rect2i ROI, const vector<KeyPoint>& all_keypoints, const Mat& all_descriptors) {
-        Mat result;
-
-        for (int i = 0; i < all_keypoints.size(); i++) {
-            if (ROI.contains(all_keypoints[i].pt))
-                result.push_back(all_descriptors.row(i));
-        }
-
-        return result;
-    }
-
-    static TreeFinder loadTreeFinder() {
-        TreeFinder tree_finder;
-        tree_finder.bag_of_leaves = BagOfLeaves::loadBagOfLeaves();
-        tree_finder.svm_binary_classifier = SvmBinaryClassifier::loadSvmBinaryClassifier();
-
-        return tree_finder;
-    }
-
-    void saveTreeFinder() {
-        this->bag_of_leaves.saveBagOfLeaves();
-        this->svm_binary_classifier.saveSvmBinaryClassifier();
-    }
-
+    /**
+     * Measure the accuracy of the SVM.
+     * @param test_path path to a folder containing test images named with the pattern "name-class.*", where class is 1 if tree,
+     * 0 otherwise.
+     * @return accuracy in range [0,1]
+     */
     float measureAccuracy(string test_path) {
         vector<String> images_path;
         vector<Mat> images;
@@ -268,13 +179,43 @@ public:
             float conf = 0;
             int predicted = svm_binary_classifier.getClass(descriptors.row(i), conf);
 
-            cout << "Predicted: " << predicted << "\t True: " << true_labels.at<int>(i, 0) << "\t Conf: " << conf << "\t File name: " << images_path[i] << endl;
-
             if (predicted != true_labels.at<int>(i, 0))
                 n_wrong++;
         }
 
         return (float)(images.size() - n_wrong) / images.size();
+    }
+
+    /***
+     * @param img
+     * @return true if the prediction is tree.
+     */
+    bool containsTree(Mat img) {
+
+        Mat desc = bag_of_leaves.computeBowDescriptorFromImage(img);
+        float conf = 0;
+        bool containsTree = svm_binary_classifier.getClass(desc, conf) > 0;
+
+        return containsTree;
+    }
+
+    /**
+     * Save current TreeFinder's state, i.e. save BagOfLeaves and SvmBinaryClassifier.
+     */
+    void saveTreeFinder() {
+        this->bag_of_leaves.saveBagOfLeaves();
+        this->svm_binary_classifier.saveSvmBinaryClassifier();
+    }
+
+    /**
+     * @return a previously saved TreeFinder. Returns a non-trained object if not found.
+     */
+    static TreeFinder loadTreeFinder() {
+        TreeFinder tree_finder;
+        tree_finder.bag_of_leaves = BagOfLeaves::loadBagOfLeaves();
+        tree_finder.svm_binary_classifier = SvmBinaryClassifier::loadSvmBinaryClassifier();
+
+        return tree_finder;
     }
 
     bool isTrained() {
@@ -283,6 +224,10 @@ public:
 
 private:
 
+    /***
+     * @param img
+     * @return a set of windows proportional to the input image.
+     */
     vector<Size2i> getWindowsSizes(const Mat& img) {
         vector<Size2i> sizes;
 
@@ -314,6 +259,11 @@ private:
         return sizes;
     }
 
+    /***
+     * Removes any rectangle that is fully contained by another.
+     * @param rects
+     * @return filtered rectangles
+     */
     static vector<Rect2i> removeFullyOverlapping(vector<Rect2i> rects) {
         vector<Rect2i> filtered;
         for (int i = 0; i < rects.size(); i++) {
@@ -346,6 +296,24 @@ private:
         }
 
         return filtered;
+    }
+
+    /***
+     * Filter the input descriptors according with the region of interest.
+     * @param ROI
+     * @param all_keypoints
+     * @param all_descriptors
+     * @return
+     */
+    static Mat getDescriptorsInsideROI(Rect2i ROI, const vector<KeyPoint>& all_keypoints, const Mat& all_descriptors) {
+        Mat result;
+
+        for (int i = 0; i < all_keypoints.size(); i++) {
+            if (ROI.contains(all_keypoints[i].pt))
+                result.push_back(all_descriptors.row(i));
+        }
+
+        return result;
     }
 
 };

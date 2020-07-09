@@ -19,10 +19,9 @@ public:
     Ptr<SVM> svm = SVM::create();
 
     /***
-     *
+     * Auto-train an SVM binary classifier with default param-grids.
      * @param training_data
-     * @param labels
-     * @param kernel_type
+     * @param labels must be 0 or 1
      */
     void train(const Mat& training_data, const Mat& labels) {
         for (int i = 0; i < labels.rows; i++) {
@@ -36,7 +35,7 @@ public:
         s->setType(SVM::C_SVC);
         s->setKernel(DEFAULT_SVM_KERNEL);
 
-        TermCriteria tc(TermCriteria::MAX_ITER, 100, 1e-6);
+        TermCriteria tc(TermCriteria::MAX_ITER, 300, 1e-6);
         s->setTermCriteria(tc);
 
         Ptr<TrainData> train_data = TrainData::create(training_data, ROW_SAMPLE, labels);
@@ -48,6 +47,12 @@ public:
         this->svm = s;
     }
 
+    /**
+     * Get the class predicted from the SVM and the output confidence with the prediction.
+     * @param input
+     * @param out_confidence
+     * @return predicted class
+     */
     int getClass(const Mat& input, float &out_confidence) {
         if (svm.empty() || !svm->isTrained()) {
             throw logic_error("SvmBinaryClassifier - cannot predict class: emtpy SVM");
@@ -61,11 +66,16 @@ public:
         return this->svm->predict(input);
     }
 
+    /***
+     * Save current SVM state so it can be loaded.
+     */
     void saveSvmBinaryClassifier() {
         this->svm->save(SVM_PATH);
     }
 
-    // Returns empty SvmBinaryClassifier if not found
+    /***
+     * @return a previously saved SvmBinaryClassifier. If not found, an empty classifier is returned.
+     */
     static SvmBinaryClassifier loadSvmBinaryClassifier() {
         SvmBinaryClassifier classifier;
 

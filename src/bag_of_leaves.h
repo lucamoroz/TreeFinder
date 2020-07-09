@@ -24,11 +24,16 @@ public:
     Ptr<FeatureDetector> feature_detector = SiftFeatureDetector::create();
     Ptr<DescriptorExtractor> descriptor_extractor = SiftDescriptorExtractor::create();
 
+    /***
+     * Extract features and compute a vocabulary from a set of images.
+     * @param images_path
+     * @param dictionary_size
+     */
     void train(const vector<string> &images_path, int dictionary_size) {
         cout << "BagOfLeaves - extracting features..." << endl;
         Mat unclustered_features = extractFeatures(images_path);
 
-        // Compute codewords
+        // Extract vocabulary codewords
         TermCriteria tc(TermCriteria::EPS | TermCriteria::MAX_ITER,100,0.001);
         BOWKMeansTrainer bow_trainer(dictionary_size, tc, 1, KMEANS_PP_CENTERS);
 
@@ -41,6 +46,10 @@ public:
         this->dictionary = dict;
     }
 
+    /***
+     * @return an object capable of extracting a BoW descriptor.
+     * If not previously trained, throws a logic error.
+     */
     BOWImgDescriptorExtractor getBowExtractor() {
         if (dictionary.empty())
             throw logic_error("BagOfLeaves - error creating bow extractor: empty dictionary");
@@ -54,12 +63,20 @@ public:
         return bow_extractor;
     }
 
+    /***
+     * @param img input image
+     * @return image's BoW descriptor
+     */
     Mat computeBowDescriptorFromImage(const Mat& img) {
         Mat descriptors = extractFeatureDescriptors(img);
         return computeBowDescriptor(descriptors);
     }
 
-    // Extract codewords from feature descriptors
+    /**
+     * @param feature_descriptors a set of feature descriptors consistent with the feature extractor
+     * used for computing the vocabulary.
+     * @return image's BoW descriptor
+     */
     Mat computeBowDescriptor(const Mat& feature_descriptors) {
         Mat bow_desc;
 
@@ -72,13 +89,18 @@ public:
         return bow_desc;
     }
 
+    /***
+     * Saves the current state of the vocabulary so it can be loaded later.
+     */
     void saveBagOfLeaves() {
         FileStorage fs(DICT_PATH, FileStorage::WRITE);
         fs << "vocabulary" << this->dictionary;
         fs.release();
     }
 
-    // Returns empty BagOfLeaves if not found
+    /***
+     * @return the previously saved vocabulary. If the vocabulary doesn't exists, returns an empty BagOfLeaves.
+     */
     static BagOfLeaves loadBagOfLeaves() {
         BagOfLeaves bow;
 
@@ -101,6 +123,11 @@ public:
         return !dictionary.empty();
     }
 
+    /**
+     * @param img input image
+     * @param keypoints features extracted according with the feature extractor
+     * @return descriptors of the extracted keypoints
+     */
     Mat extractFeatureDescriptors(const Mat& img, vector<KeyPoint> &keypoints) {
         Mat descriptor;
 
@@ -112,6 +139,10 @@ public:
         return descriptor;
     }
 
+    /***
+     * @param img input image
+     * @return descriptors found in the image, according with the feature & descriptor extractors.
+     */
     Mat extractFeatureDescriptors(const Mat& img) {
         vector<KeyPoint> unused;
         return extractFeatureDescriptors(img, unused);
@@ -126,6 +157,9 @@ public:
 
 private:
 
+    /**
+     * Util method that extracts a Mat of features from a folder of images.
+     */
     Mat extractFeatures(const vector<string> images_path) {
         Mat all_features;
         Mat descriptor;
