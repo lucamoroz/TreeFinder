@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.5.10)  9 JUL 2020 11:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2020.5.10)  9 JUL 2020 15:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -143,39 +143,39 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [1]
 LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 3
-1.
+4.
 
 (/usr/share/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 31.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 34.
  [1]
 <./img/before/no_prep_0_48_0.png, id=19, 898.10532pt x 478.03593pt>
 File: ./img/before/no_prep_0_48_0.png Graphic file (type png)
 <use ./img/before/no_prep_0_48_0.png>
-Package pdftex.def Info: ./img/before/no_prep_0_48_0.png  used on input line 77
+Package pdftex.def Info: ./img/before/no_prep_0_48_0.png  used on input line 80
 .
 (pdftex.def)             Requested size: 170.7103pt x 113.8046pt.
 <img/before/no_prep_0_48_1.png, id=20, 666.99188pt x 440.39531pt>
 File: img/before/no_prep_0_48_1.png Graphic file (type png)
 <use img/before/no_prep_0_48_1.png>
-Package pdftex.def Info: img/before/no_prep_0_48_1.png  used on input line 78.
+Package pdftex.def Info: img/before/no_prep_0_48_1.png  used on input line 81.
 (pdftex.def)             Requested size: 170.71677pt x 113.80792pt.
 <img/before/no_prep_0_48_2.png, id=21, 654.19406pt x 469.755pt>
 File: img/before/no_prep_0_48_2.png Graphic file (type png)
 <use img/before/no_prep_0_48_2.png>
-Package pdftex.def Info: img/before/no_prep_0_48_2.png  used on input line 79.
+Package pdftex.def Info: img/before/no_prep_0_48_2.png  used on input line 82.
 (pdftex.def)             Requested size: 170.71532pt x 113.81151pt.
 <img/before/no_prep_0_48_5.png, id=22, 641.39626pt x 399.74344pt>
 File: img/before/no_prep_0_48_5.png Graphic file (type png)
 <use img/before/no_prep_0_48_5.png>
-Package pdftex.def Info: img/before/no_prep_0_48_5.png  used on input line 80.
+Package pdftex.def Info: img/before/no_prep_0_48_5.png  used on input line 83.
 (pdftex.def)             Requested size: 170.713pt x 113.80606pt.
  [2 <./img/before/no_prep_0_48_0.png (PNG copy)> <./img/before/no_prep_0_48_1.p
 ng (PNG copy)> <./img/before/no_prep_0_48_2.png (PNG copy)> <./img/before/no_pr
 ep_0_48_5.png (PNG copy)>]
-Underfull \hbox (badness 10000) in paragraph at lines 108--112
+Underfull \hbox (badness 10000) in paragraph at lines 111--115
 
  []
 
@@ -183,13 +183,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 108--112
 File: img/before/no_prep_0_48_nfeat.png Graphic file (type png)
 <use img/before/no_prep_0_48_nfeat.png>
 Package pdftex.def Info: img/before/no_prep_0_48_nfeat.png  used on input line 
-113.
+116.
 (pdftex.def)             Requested size: 170.71622pt x 113.81206pt.
 <img/before/no_prep_0_48_1_n_feature.png, id=27, 380.17032pt x 324.46219pt>
 File: img/before/no_prep_0_48_1_n_feature.png Graphic file (type png)
 <use img/before/no_prep_0_48_1_n_feature.png>
 Package pdftex.def Info: img/before/no_prep_0_48_1_n_feature.png  used on input
- line 114.
+ line 117.
 (pdftex.def)             Requested size: 170.7212pt x 113.811pt.
 [3]
 <img/resized_window/Screenshot_20200707_191259.png, id=31, 425.33907pt x 325.21
@@ -198,7 +198,7 @@ File: img/resized_window/Screenshot_20200707_191259.png Graphic file (type png)
 
 <use img/resized_window/Screenshot_20200707_191259.png>
 Package pdftex.def Info: img/resized_window/Screenshot_20200707_191259.png  use
-d on input line 142.
+d on input line 145.
 (pdftex.def)             Requested size: 170.71672pt x 113.81206pt.
 <img/resized_window/Screenshot_20200707_191430.png, id=32, 371.13657pt x 297.36
 093pt>
@@ -206,7 +206,7 @@ File: img/resized_window/Screenshot_20200707_191430.png Graphic file (type png)
 
 <use img/resized_window/Screenshot_20200707_191430.png>
 Package pdftex.def Info: img/resized_window/Screenshot_20200707_191430.png  use
-d on input line 143.
+d on input line 146.
 (pdftex.def)             Requested size: 170.71922pt x 113.8105pt.
 <img/resized_window/Screenshot_20200707_191506.png, id=33, 369.63094pt x 300.37
 22pt>
@@ -214,7 +214,7 @@ File: img/resized_window/Screenshot_20200707_191506.png Graphic file (type png)
 
 <use img/resized_window/Screenshot_20200707_191506.png>
 Package pdftex.def Info: img/resized_window/Screenshot_20200707_191506.png  use
-d on input line 144.
+d on input line 147.
 (pdftex.def)             Requested size: 170.71474pt x 113.8126pt.
 <img/resized_window/Screenshot_20200707_191538.png, id=34, 372.64218pt x 299.61
 937pt>
@@ -222,7 +222,7 @@ File: img/resized_window/Screenshot_20200707_191538.png Graphic file (type png)
 
 <use img/resized_window/Screenshot_20200707_191538.png>
 Package pdftex.def Info: img/resized_window/Screenshot_20200707_191538.png  use
-d on input line 145.
+d on input line 148.
 (pdftex.def)             Requested size: 170.7124pt x 113.81082pt.
 <img/resized_window/Screenshot_20200707_191628.png, id=35, 478.78876pt x 386.94
 562pt>
@@ -230,7 +230,7 @@ File: img/resized_window/Screenshot_20200707_191628.png Graphic file (type png)
 
 <use img/resized_window/Screenshot_20200707_191628.png>
 Package pdftex.def Info: img/resized_window/Screenshot_20200707_191628.png  use
-d on input line 146.
+d on input line 149.
 (pdftex.def)             Requested size: 170.71272pt x 113.81142pt.
  [4 <./img/before/no_prep_0_48_nfeat.png (PNG copy)> <./img/before/no_prep_0_48
 _1_n_feature.png (PNG copy)>] [5 <./img/resized_window/Screenshot_20200707_1912
@@ -242,37 +242,37 @@ creenshot_20200707_191628.png (PNG copy)>]
 File: img/final/Screenshot_20200708_201030.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201030.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201030.png  used on inpu
-t line 165.
+t line 168.
 (pdftex.def)             Requested size: 170.71544pt x 113.81206pt.
 <img/final/Screenshot_20200708_201111.png, id=44, 372.64218pt x 304.88907pt>
 File: img/final/Screenshot_20200708_201111.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201111.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201111.png  used on inpu
-t line 166.
+t line 169.
 (pdftex.def)             Requested size: 170.7124pt x 113.81206pt.
 <img/final/Screenshot_20200708_201208.png, id=45, 369.63094pt x 280.79906pt>
 File: img/final/Screenshot_20200708_201208.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201208.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201208.png  used on inpu
-t line 167.
+t line 170.
 (pdftex.def)             Requested size: 170.71474pt x 113.80869pt.
 <img/final/Screenshot_20200708_201238.png, id=46, 373.395pt x 302.63063pt>
 File: img/final/Screenshot_20200708_201238.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201238.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201238.png  used on inpu
-t line 168.
+t line 171.
 (pdftex.def)             Requested size: 170.71544pt x 113.80945pt.
 <img/final/Screenshot_20200708_201325.png, id=47, 376.40625pt x 282.30469pt>
 File: img/final/Screenshot_20200708_201325.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201325.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201325.png  used on inpu
-t line 169.
+t line 172.
 (pdftex.def)             Requested size: 170.71947pt x 113.81154pt.
 <img/final/Screenshot_20200708_201347.png, id=48, 367.3725pt x 265.74281pt>
 File: img/final/Screenshot_20200708_201347.png Graphic file (type png)
 <use img/final/Screenshot_20200708_201347.png>
 Package pdftex.def Info: img/final/Screenshot_20200708_201347.png  used on inpu
-t line 170.
+t line 173.
 (pdftex.def)             Requested size: 170.71992pt x 113.81302pt.
  [6 <./img/final/Screenshot_20200708_201030.png (PNG copy)> <./img/final/Screen
 shot_20200708_201111.png (PNG copy)> <./img/final/Screenshot_20200708_201208.pn
@@ -294,7 +294,7 @@ texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/font
 s/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/
 amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cms
 y10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on report.pdf (9 pages, 6003589 bytes).
+Output written on report.pdf (9 pages, 6003585 bytes).
 PDF statistics:
  79 PDF objects out of 1000 (max. 8388607)
  43 compressed objects within 1 object stream

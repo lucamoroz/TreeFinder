@@ -21,7 +21,10 @@
 \maketitle
 
 \begin{abstract}
-	This report is proposed as a diary that describes the reasons for the choices I made: I have found useful to do a retrospective about how I gracefully failed the assignment.
+	This report explains the choices I have made in order to develop a program capable of detecting trees inside an image.
+	
+	The final results obtained are discussed at the end of the report.
+	 
 \end{abstract}
 
 \section{Project design}
@@ -58,7 +61,7 @@ The classes are the following:
 
 \section{Dataset source}
 Training images have been downloaded from different search engines like Google, Bing and DuckDuckGo.
-The high variability of these images has probably affected the final model, as discussed in the next sections.
+The high variability of these images has probably affected the final model, as discussed further.
 
 \newpage
 \section{First implementation}
@@ -148,7 +151,7 @@ As expected the evaluation time of this new approach increased while the trainin
 
 \vspace{0.5cm}
 
-Except for the top-left image, that is the one with the smallest resolution, there were many missclassifications.
+Except for the top-left image, which is the one with the smallest resolution, there were many miss-classifications.
 
 \section{Third approach - less drastic complexity reduction}
 I decided to do one last try by mixing the first two approaches.
