@@ -81,6 +81,9 @@ public:
         bag_of_leaves.feature_detector->detect(img, all_keypoints);
         bag_of_leaves.descriptor_extractor->compute(img, all_keypoints, all_descriptors);
 
+        vector<Rect2i> boxes;
+        vector<float> confidences;
+
         for (const auto &win_size : getWindowsSizes(img)) {
 
             int col_step = win_size.width / 15;
@@ -101,9 +104,6 @@ public:
             waitKey(0);
             destroyAllWindows();
             */
-
-            vector<Rect2i> boxes;
-            vector<float> confidences;
 
             for (int row = 0; row + win_size.height <= img.rows; row += row_step) {
                 for (int col = 0; col + win_size.width <= img.cols; col += col_step) {
@@ -135,13 +135,13 @@ public:
                     }
                 }
             }
+        }
 
-            // Apply non-maxima suppression
-            vector<int> maxima_indexes;
-            dnn::NMSBoxes(boxes, confidences, min_conf, 0, maxima_indexes);
-            for (int mi : maxima_indexes) {
-                tree_locations.push_back(boxes[mi]);
-            }
+        // Apply non-maxima suppression
+        vector<int> maxima_indexes;
+        dnn::NMSBoxes(boxes, confidences, min_conf, 0, maxima_indexes);
+        for (int mi : maxima_indexes) {
+            tree_locations.push_back(boxes[mi]);
         }
 
         return removeFullyOverlapping(tree_locations);
