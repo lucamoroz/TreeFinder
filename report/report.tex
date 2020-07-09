@@ -61,7 +61,7 @@ The classes are the following:
 
 \section{Dataset source}
 Training images have been downloaded from different search engines like Google, Bing and DuckDuckGo.
-The high variability of these images has probably affected the final model, as discussed further.
+The high variability of these images has probably affected the quality of the final model, as discussed further.
 
 \newpage
 \section{First implementation}
@@ -88,7 +88,7 @@ Despite a noticeable  improvement, the results were not satisfactory:
 A parameter that greatly affected the quality of the results is the number of code-words computed from the set of features extracted from the training data-set. \\
 The optimization of this parameter was made difficult by the time required for the training and the evaluation, that has to be done by a human: I didn't had a metric to automatically measure how far a detection was from the actual position of the tree.
 
-On the other side, the confidence with a detection (i.e. the normalized distance from the margin) could be easily optimized as it can be changed without re-training the model.
+On the other side, the confidence with a detection (i.e. the normalized distance from the SVM margin) could be easily optimized as it can be changed without re-training the model.
 
 \section{Reasoning about performance}
 In many cases, like the top-right and bottom-right pictures of the previous section, trees were \textit{half}-located. 
@@ -104,7 +104,7 @@ How could I improve the localization? Is loosing relative features position ruin
 I started thinking that BoVW is not suitable for this task.
 
 \section{Issues investigation}
-Rather than discarding the whole work and starting again from scratch, I decide to try having a deeper understanding of the key localization steps.
+Rather than discarding the whole work and starting again from scratch, I decided to try having a deeper understanding of the key localization steps.
 
 The training and test images have many different resolutions, ranging from 4000x1000 to 800x400. How does the behavior BoWV change, given two images of different resolution?
 
